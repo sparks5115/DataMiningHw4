@@ -41,7 +41,9 @@ from problem2 import *
 def extract_user_j(R_j, I):
     #########################################
     ## INSERT YOUR CODE HERE (7 points)
-    
+    inv = np.invert(np.isnan(R_j))
+    y = R_j[inv]
+    X = I[inv]
     #########################################
     return X, y
     #------ (7 points / 50 total points) -----------
@@ -74,7 +76,7 @@ def extract_user_j(R_j, I):
 def train_user_j(X, y, a=1e-05):
     #########################################
     ## INSERT YOUR CODE HERE (7 points)
-    
+    Uj = ridge_regression(X, y, a)
     #########################################
     return Uj
     #------ (7 points / 50 total points) -----------
@@ -141,7 +143,13 @@ def train_user_j(X, y, a=1e-05):
 def update_U(R, I, a=1e-05):
     #########################################
     ## INSERT YOUR CODE HERE (7 points)
-    
+    (m,n) = R.shape
+    (m,k) = I.shape
+    U = np.empty((n,k))
+    for idx, column in enumerate(R.T):
+        x,y = extract_user_j(column, I)
+        Uj = train_user_j(x,y,a)
+        U[idx] = Uj
     #########################################
     return U
     #------ (7 points / 50 total points) -----------
@@ -190,7 +198,9 @@ def update_U(R, I, a=1e-05):
 def extract_item_i(Ri_, U):
     #########################################
     ## INSERT YOUR CODE HERE (7 points)
-    
+    inv = np.invert(np.isnan(Ri_))
+    X = U[inv]
+    y = Ri_[inv]
     #########################################
     return X, y
     #------ (7 points / 50 total points) -----------
@@ -222,7 +232,7 @@ def extract_item_i(Ri_, U):
 def train_item_i(X, y, a=1e-05):
     #########################################
     ## INSERT YOUR CODE HERE (7 points)
-    
+    Ii = ridge_regression(X, y, a)
     #########################################
     return Ii
     #------ (7 points / 50 total points) -----------
@@ -255,7 +265,7 @@ def train_item_i(X, y, a=1e-05):
 def update_I(R, U, a=1e-05):
     #########################################
     ## INSERT YOUR CODE HERE (7 points)
-    
+    I = update_U(R.T, U, a)
     #########################################
     return I
     #------ (7 points / 50 total points) -----------
@@ -295,7 +305,8 @@ def collaborative_filtering(R, k=5, a=1e-05, n_steps=20):
     for _ in range(n_steps): # repeat n_steps
         #########################################
         ## INSERT YOUR CODE HERE (8 points)
-    
+        U = update_U(R, I, a)
+        I = update_I(R, U, a)
         #########################################
     return I, U
     #------ (8 points / 50 total points) -----------
